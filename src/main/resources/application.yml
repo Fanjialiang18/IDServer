@@ -1,0 +1,8 @@
+#SpringBoot的配置文件
+server:
+  port: 8080 #端口号
+spring:
+  servlet:
+    multipart:
+      enabled: true #允许文件上传功能
+      max-file-size: 10MB #文件最大值为10MB
