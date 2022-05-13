@@ -1,5 +1,6 @@
 package com.clearlove3.idserver.controller;
 
+import com.clearlove3.idserver.domain.Msg;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.FileCopyUtils;
@@ -26,8 +27,21 @@ import java.util.concurrent.TimeUnit;
  * @date 2022/4/14 14:15
  */
 @Controller
-@RequestMapping("/image")
+@RequestMapping(value = "/image",produces = "application/json;charset=UTF-8")
 public class ImageController {
+
+    private Msg msg=null;
+
+    /**
+     * 用于查询抠图执行结果的Controller
+     * 返回自定义的错误信息实体类来向客户端响应抠图结果
+     * @return 自定义的错误信息
+     */
+    @ResponseBody
+    @RequestMapping(value = "/query")
+    public Msg query(){
+        return msg;
+    }
 
     /**
      * 获取请求中的图片并且进行抠图的Controller
@@ -45,7 +59,7 @@ public class ImageController {
         InputStream in=null;
         OutputStream out=null;
         //图片要保存的路径，使用绝对路径进行保存
-        String filePath="F:/code/FinalProject/MODNet/input/1.jpg";
+        String filePath="F:/code/FinalProject/MODNet/input_phone1/1.jpg";
         //使用try catch捕获可能发生的异常
         try {
             //获取上传文件的流数据
@@ -57,6 +71,7 @@ public class ImageController {
             FileCopyUtils.copy(in,out);
         } catch (IOException e) {
             e.printStackTrace();
+            msg=new Msg(2,"文件储存失败!");
         } finally {
             //使用finally来保证流最后会被关闭
             try {
@@ -77,6 +92,7 @@ public class ImageController {
                     new File("F:/code/FinalProject/MODNet"));
         } catch (IOException e) {
             e.printStackTrace();
+            msg=new Msg(3,"抠图程序启动失败!");
         }
         //最后返回生成的证件照
         try {
@@ -86,7 +102,7 @@ public class ImageController {
             e.printStackTrace();
         }
         //获取生成的图片的绝对路径
-        String outPath="F:/code/FinalProject/MODNet/output/1_fg.png";
+        String outPath="F:/code/FinalProject/MODNet/align1/1_fg.jpg";
         //使用BufferedImage类来保存图片
         BufferedImage image= null;
         try {
@@ -96,18 +112,19 @@ public class ImageController {
             System.out.println("正在返回生成的证件照...");
         } catch (IOException e) {
             e.printStackTrace();
+            msg=new Msg(3,"未检测到人像!");
         }
         //使用比特流来保存图片的流数据
         ByteArrayOutputStream res=new ByteArrayOutputStream();
         try {
             //将图片的流数据写入到数组之中
-            ImageIO.write(image,"png",res);
+            ImageIO.write(image,"jpg",res);
             System.out.println("证件照返回完毕!");
         } catch (IOException e) {
             e.printStackTrace();
         }
         //返回流的二进制数组，完成图片的返回
+        msg=new Msg(1,"成功!");
         return res.toByteArray();
-
     }
 }
